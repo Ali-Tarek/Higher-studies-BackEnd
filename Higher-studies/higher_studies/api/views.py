@@ -9,13 +9,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import json
-
-
-
-
-
-
-
+from rest_framework.generics import DestroyAPIView
 
 @api_view(['GET'])
 def getStudents(request):
@@ -56,6 +50,46 @@ def get_object(request, object_id):
     return Response(serializer.data)
 
 """
+
+@csrf_exempt
+@api_view(['POST'])
+def add_student(request):
+    if request.method == 'POST':
+        data = request.data
+       
+        if data['Gender'] == 'Male':
+            data["Gender"] = 'M'
+        else:
+            data["Gender"] = 'F'
+        if data['Active'] == 'Active':
+            data["Active"] = 'A'
+        else:
+            data["Active"] = 'I'
+        data['Date'] = data['Date'].replace("/", "-")
+        
+        serializer = StudentSerializer(data={
+            'id':data['ID'],
+            'firstName': data['fname'],
+            'lastName': data['lname'],
+            'gender': data['Gender'],
+            'status': data['Active'],
+            'dob': data['Date'],
+            'university': data['Uni'],
+            'course1': data['course_1'],
+            'course2': data['course_2'],
+            'course3': data['course_3'],
+            'department': data['Dept']
+        })
+       
+        if serializer.is_valid():
+            student = serializer.save()
+        else:
+            response_data = {'error': 'ID is aleady Existed'}
+            return JsonResponse(response_data, status=400)
+        
+        Response_Data = {'message': "Student added successfully"}
+        return JsonResponse(Response_Data)
+
 @api_view(['GET'])
 def student_details_with_course(request, student_id):
     try:
@@ -148,4 +182,16 @@ def delete_student(request):
     else:
         return Response({'message': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
     
+class StudentDeleteView(DestroyAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
 
+@api_view(['GET'])
+def delete_with_pk(request, pk):
+    try:
+        student = Student.objects.get(pk=pk)
+    except Student.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    student.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
