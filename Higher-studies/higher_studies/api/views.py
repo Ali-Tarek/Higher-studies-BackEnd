@@ -195,3 +195,16 @@ def delete_with_pk(request, pk):
 
     student.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['POST'])
+def createCourse(request):
+    if request.method == 'POST':
+        courseSerializer = CourseSerializer(data=request.data)
+        responseMessage = None
+        if courseSerializer.is_valid():
+            courseSerializer.save()
+            responseMessage = {"message": "Success"}
+        else:
+            responseMessage = courseSerializer.errors
+        return Response(responseMessage)
+    

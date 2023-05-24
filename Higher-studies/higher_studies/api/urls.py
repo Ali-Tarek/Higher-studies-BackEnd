@@ -6,6 +6,7 @@ from .views import update_student
 from .views import StudentDeleteView
 
 urlpatterns = [
+    path('', views.getStudents),
     path('students/', views.getStudents),
     path('courses/', views.getCourses),
     path('enrollments/', views.getEnrollments),
@@ -16,4 +17,5 @@ urlpatterns = [
     path('CoursesOnly/', getCoursesOnly, name='get-courses'),
     path('delete-student/', views.delete_student, name='delete-student'),
     path('delete-with-pk/<int:pk>/', StudentDeleteView.as_view(), name='delete-with-pk'),
+    path('courses/create', views.createCourse)
 ]
